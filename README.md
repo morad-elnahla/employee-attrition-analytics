@@ -1,6 +1,6 @@
 <div align="center">
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Syne&weight=800&size=36&pause=1000&color=E45756&center=true&vCenter=true&width=600&lines=Employee+Attrition+⚡;Who+Leaves+%26+Why;Data+Analytics+End-to-End)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Syne&weight=800&size=36&pause=1000&color=6366f1&center=true&vCenter=true&width=600&lines=Employee+Attrition+⚡;Who+Leaves+%26+Why;Data+Analytics+End-to-End)](https://git.io/typing-svg)
 
 [![Python](https://img.shields.io/badge/Python-3.10-E8FF47?style=for-the-badge&logo=python&logoColor=black&labelColor=0a0c10)](https://python.org)
 [![Pandas](https://img.shields.io/badge/Pandas-2.0-E8FF47?style=for-the-badge&logo=pandas&logoColor=black&labelColor=0a0c10)](https://pandas.pydata.org)
@@ -11,11 +11,23 @@
 
 | 👥 Total Employees | 📉 Attrition Rate | 💰 Avg Salary | 🔍 Analyses |
 |:-----------------:|:-----------------:|:-------------:|:-----------:|
-| **74,498** | **47.5%** | **~$6,500** | **13** |
+| **74,498** | **47.5%** | **~$7,299** | **13** |
 
-**[🚀 Try the Live Dashboard →](https://your-app.streamlit.app)**
+**[🚀 Try the Live Dashboard →](https://employee-attrition-analytics.streamlit.app/)**
 
 </div>
+
+---
+
+## ✦ Dashboard Preview
+
+<img src="images/Screenshot 2026-06-04 164039.png" width="100%" alt="Dashboard KPIs and Attrition Overview"/>
+
+
+<img src="images/Screenshot 2026-06-04 164213.png" width="100%" alt="Key Findings and HR Recommendations"/>
+
+<img src="images/Screenshot 2026-06-04 164129.png" width="100%" alt="Dashboard Charts"/>
+
 
 ---
 
@@ -29,16 +41,10 @@ This isn't machine learning. It's exploratory analysis and storytelling — clea
 
 ---
 
-## ✦ Screenshots
-
-*(Add your dashboard screenshots here after deployment)*
-
----
-
 ## ✦ Project Structure
 
 ```
-employee-attrition-dashboard/
+employee-attrition-analytics/
 │
 ├── 📓 employee_attrition_analytics.ipynb
 │   ├── Section 1  Load & Combine
@@ -48,6 +54,7 @@ employee-attrition-dashboard/
 │
 ├── 🎛️  app.py                 ← Streamlit dashboard
 ├── 📋  requirements.txt
+├── 🖼️  images/                ← Dashboard screenshots
 ├── 📊  train.csv
 └── 📊  test.csv
 ```
