@@ -14,12 +14,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
-st.markdown("""
-<style>
-#MainMenu {visibility: visible !important;}
-header {visibility: visible !important;}
-</style>
-""", unsafe_allow_html=True)
+
 # ── Logo ───────────────────────────────────────────────────────────────────────
 def _clean_logo(path):
     try:
