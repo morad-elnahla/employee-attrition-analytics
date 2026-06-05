@@ -289,8 +289,7 @@ def sec(title):
 
 # ── Header ─────────────────────────────────────────────────────────────────────
 st.markdown(f"""
-<div style="display:flex;align-items:center;gap:1rem;padding:0.4rem 0 0.6rem">
-  {LOGO_IMG.format(s="height:44px;flex-shrink:0")}
+<div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 0.6rem">
   <div>
     <div style="font-size:1.55rem;font-weight:800;color:#e2e8f0;
                 letter-spacing:-0.02em;line-height:1.1">
@@ -301,6 +300,7 @@ st.markdown(f"""
       Kayfa AI & Data Analytics &nbsp;·&nbsp; Week 1
     </div>
   </div>
+  {LOGO_IMG.format(s="height:40px;flex-shrink:0;position:relative;top:-15px")}
 </div>
 <hr style="margin:0.4rem 0 1.2rem">
 """, unsafe_allow_html=True)
