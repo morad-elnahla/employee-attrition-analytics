@@ -892,25 +892,83 @@ with tab6:
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(sec("Priority Matrix — Where to Start"), unsafe_allow_html=True)
 
-    priority_data = {
-        "Action": [
-            "Cap overtime (policy memo)",
-            "Stay interviews for flight-risk employees",
-            "Stretch projects & task forces",
-            "30/60/90-day new hire check-ins",
-            "Internal mobility program",
-            "Hybrid pilot for top 2 roles",
-            "Peer mentorship for young employees",
-            "Salary band audit (bottom quartile)",
-            "Promotion cadence review",
-        ],
-        "Cost": ["Free","Free","Free","Free","Low","Low","Low","Medium","Medium"],
-        "Speed": ["Immediate","2 weeks","This quarter","Next hire batch","Next quarter","Next quarter","Next quarter","Next cycle","Next cycle"],
-        "Data Driver": ["Q2, Q9, Q10","Q6, Q9","Q8","Q5","Q8","Q3","Q7","Q4","Q8"],
-        "Impact": ["🔴 High","🔴 High","🟡 Medium","🔴 High","🔴 High","🟡 Medium","🟡 Medium","🔴 High","🟡 Medium"],
-    }
-    summary_df = pd.DataFrame(priority_data)
-    st.dataframe(summary_df, use_container_width=True, hide_index=True)
-
+    st.markdown("""
+        <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+        <thead>
+            <tr style="border-bottom:2px solid rgba(99,102,241,0.3)">
+            <th style="text-align:left;padding:0.6rem">Action</th>
+            <th style="text-align:left;padding:0.6rem">Cost</th>
+            <th style="text-align:left;padding:0.6rem">Speed</th>
+            <th style="text-align:left;padding:0.6rem">Data Driver</th>
+            <th style="text-align:left;padding:0.6rem">Impact</th>
+            </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid rgba(99,102,241,0.1)">
+            <td style="padding:0.6rem">Cap overtime (policy memo)</td>
+            <td style="padding:0.6rem"><span style="background:rgba(16,185,129,0.15);color:#10b981;padding:0.15rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:700">Free</span></td>
+            <td style="padding:0.6rem">Immediate</td>
+            <td style="padding:0.6rem">Q2, Q9, Q10</td>
+            <td style="padding:0.6rem">🔴 High</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(99,102,241,0.1)">
+            <td style="padding:0.6rem">Stay interviews for flight-risk employees</td>
+            <td style="padding:0.6rem"><span style="background:rgba(16,185,129,0.15);color:#10b981;padding:0.15rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:700">Free</span></td>
+            <td style="padding:0.6rem">2 weeks</td>
+            <td style="padding:0.6rem">Q6, Q9</td>
+            <td style="padding:0.6rem">🔴 High</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(99,102,241,0.1)">
+            <td style="padding:0.6rem">Stretch projects & task forces</td>
+            <td style="padding:0.6rem"><span style="background:rgba(16,185,129,0.15);color:#10b981;padding:0.15rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:700">Free</span></td>
+            <td style="padding:0.6rem">This quarter</td>
+            <td style="padding:0.6rem">Q8</td>
+            <td style="padding:0.6rem">🟡 Medium</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(99,102,241,0.1)">
+            <td style="padding:0.6rem">30/60/90-day new hire check-ins</td>
+            <td style="padding:0.6rem"><span style="background:rgba(16,185,129,0.15);color:#10b981;padding:0.15rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:700">Free</span></td>
+            <td style="padding:0.6rem">Next hire batch</td>
+            <td style="padding:0.6rem">Q5</td>
+            <td style="padding:0.6rem">🔴 High</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(99,102,241,0.1)">
+            <td style="padding:0.6rem">Internal mobility program</td>
+            <td style="padding:0.6rem"><span style="background:rgba(99,102,241,0.15);color:#6366f1;padding:0.15rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:700">Low</span></td>
+            <td style="padding:0.6rem">Next quarter</td>
+            <td style="padding:0.6rem">Q8</td>
+            <td style="padding:0.6rem">🔴 High</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(99,102,241,0.1)">
+            <td style="padding:0.6rem">Hybrid pilot for top 2 roles</td>
+            <td style="padding:0.6rem"><span style="background:rgba(99,102,241,0.15);color:#6366f1;padding:0.15rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:700">Low</span></td>
+            <td style="padding:0.6rem">Next quarter</td>
+            <td style="padding:0.6rem">Q3</td>
+            <td style="padding:0.6rem">🟡 Medium</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(99,102,241,0.1)">
+            <td style="padding:0.6rem">Peer mentorship for young employees</td>
+            <td style="padding:0.6rem"><span style="background:rgba(99,102,241,0.15);color:#6366f1;padding:0.15rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:700">Low</span></td>
+            <td style="padding:0.6rem">Next quarter</td>
+            <td style="padding:0.6rem">Q7</td>
+            <td style="padding:0.6rem">🟡 Medium</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(99,102,241,0.1)">
+            <td style="padding:0.6rem">Salary band audit (bottom quartile)</td>
+            <td style="padding:0.6rem"><span style="background:rgba(249,115,22,0.15);color:#f97316;padding:0.15rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:700">Medium</span></td>
+            <td style="padding:0.6rem">Next cycle</td>
+            <td style="padding:0.6rem">Q4</td>
+            <td style="padding:0.6rem">🔴 High</td>
+          </tr>
+          <tr>
+            <td style="padding:0.6rem">Promotion cadence review</td>
+            <td style="padding:0.6rem"><span style="background:rgba(249,115,22,0.15);color:#f97316;padding:0.15rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:700">Medium</span></td>
+            <td style="padding:0.6rem">Next cycle</td>
+            <td style="padding:0.6rem">Q8</td>
+            <td style="padding:0.6rem">🟡 Medium</td>
+          </tr>
+        </tbody>
+        </table>
+""", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     st.caption("All actions derived directly from the 10-question EDA analysis · Kayfa AI & Data Analytics Internship · Week 1")
