@@ -286,6 +286,7 @@ def qlayout(fig, h=360):
         font=dict(family="DM Sans", size=11),
         title_font=dict(family="DM Sans", size=13, weight=600),
     )
+    fig.update_traces(textfont_size=13)
     fig.update_xaxes(gridcolor="rgba(0,0,0,0.05)", zeroline=False)
     fig.update_yaxes(gridcolor="rgba(0,0,0,0.05)", zeroline=False)
     return fig
@@ -308,8 +309,8 @@ def sec(title):
 st.markdown(f"""
 <div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 0.6rem">
   <div>
-    <div style="font-size:1.55rem;font-weight:800;letter-spacing:-0.02em;line-height:1.1">
-      <span style="color:#6366f1;font-size:0.85rem;font-weight:700;
+    <div style="font-size:2rem;font-weight:800;letter-spacing:-0.02em;line-height:1.1">
+      <span style="color:#6366f1;font-size:1.50rem;font-weight:700;
                     letter-spacing:0.08em;text-transform:uppercase;display:block;
                     margin-bottom:0.3rem">Week #1 Task:</span>
       Employee Attrition Analytics
@@ -358,10 +359,10 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 # ── Tabs ───────────────────────────────────────────────────────────────────────
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📊  Q1–Q3: Headlines",
-    "💰  Q4–Q5: Pay & Timeline",
-    "⚡  Q6–Q8: Engagement & Growth",
-    "🎯  Q9–Q10: Risk & Drivers",
+    "📊  Attrition Headlines",
+    "💰  Pay & Retention",
+    "⚡  Engagement & Growth",
+    "🎯  Risk Profiles & Drivers",
     "📈  Executive Summary",
     "💡  Action Plan",
 ])
@@ -390,18 +391,20 @@ with tab1:
                      title="Attrition Rate (%) by Job Role",
                      labels={"rate": "Attrition Rate (%)", "job_role": "Job Role"},
                      color_discrete_sequence=["#6366f1"])
-        fig.add_vline(x=company_avg, line_dash="dash",
-                      annotation_text=f"Avg ({company_avg:.1f}%)")
+        fig.add_vline(x=rate, line_dash="dash",
+                      annotation_text=f"<b>Filtered Avg ({rate:.1f}%)</b>",
+              annotation_font_color="#9333ea", annotation_font_size=11,
+              annotation_bgcolor="rgba(255,255,255,0.75)", line_color="#9333ea")
         fig.update_layout(yaxis={"categoryorder":"total ascending"})
         st.plotly_chart(qlayout(fig), use_container_width=True)
 
     top_role_vol  = role_count.iloc[0]
     top_role_rate = role_rate.iloc[0]
     st.markdown(
-        insight("🚨","Q1 Answer",
-                f"Overall attrition is **{company_avg:.1f}%** — nearly 1 in 2 employees. "
-                f"**{top_role_vol['job_role']}** has the most leavers in volume ({int(top_role_vol['left']):,} people). "
-                f"**{top_role_rate['job_role']}** has the highest rate ({top_role_rate['rate']:.1f}%). "
+        insight("💡","INSIGHTS",
+                f"Overall attrition is <b>{rate:.1f}%</b> — nearly 1 in 2 employees. "
+                f"<b>{top_role_vol['job_role']}</b> has the most leavers in volume ({int(top_role_vol['left']):,} people). "
+                f"<b>{top_role_rate['job_role']}</b> has the highest rate ({top_role_rate['rate']:.1f}%). "
                 "Leadership should start retention efforts with the highest-rate role, not just the highest count."),
         unsafe_allow_html=True,
     )
@@ -414,21 +417,28 @@ with tab1:
                  title="Attrition Rate: Overtime vs No Overtime",
                  labels={"overtime": "Overtime Status", "rate": "Attrition Rate (%)"},
                  color_discrete_map={"Yes": LEFT, "No": STAYED})
-    fig.add_hline(y=company_avg, line_dash="dash",
-                  annotation_text=f"Company Avg ({company_avg:.1f}%)")
+    fig.add_hline(y=rate, line_dash="dash",
+                  annotation_text=f"<b>Filtered Avg ({rate:.1f}%)</b>",
+              annotation_font_color="#9333ea", annotation_font_size=11,
+              annotation_bgcolor="rgba(255,255,255,0.75)", line_color="#9333ea")
     fig.update_layout(showlegend=False, yaxis_range=[0, smart_ymax(ot_stats["rate"])])
     st.plotly_chart(qlayout(fig), use_container_width=True)
 
-    ot_yes = ot_stats[ot_stats["overtime"] == "Yes"]["rate"].values[0]
-    ot_no  = ot_stats[ot_stats["overtime"] == "No"]["rate"].values[0]
-    st.markdown(
-        insight("⚡","Q2 Answer",
-                f"Overtime workers leave at **{ot_yes:.1f}%** vs {ot_no:.1f}% for non-overtime — "
-                f"a **{ot_yes - ot_no:.1f} percentage point gap**. "
-                "This is the clearest single burnout signal in the data. "
-                "HR should audit overtime hours by department and cap mandatory overtime immediately."),
-        unsafe_allow_html=True,
-    )
+    _oy = ot_stats[ot_stats["overtime"] == "Yes"]
+    _on = ot_stats[ot_stats["overtime"] == "No"]
+    ot_yes = float(_oy["rate"].values[0]) if len(_oy) else None
+    ot_no  = float(_on["rate"].values[0])  if len(_on)  else None
+    if ot_yes is not None and ot_no is not None:
+        st.markdown(
+            insight("💡","INSIGHTS",
+                    f"Overtime workers leave at <b>{ot_yes:.1f}%</b> vs {ot_no:.1f}% for non-overtime — "
+                    f"a <b>{ot_yes - ot_no:.1f} percentage point gap</b>. "
+                    "This is the clearest single burnout signal in the data. "
+                    "HR should audit overtime hours by department and cap mandatory overtime immediately."),
+            unsafe_allow_html=True,
+        )
+    else:
+        st.info("⚠️ Enable both Overtime options in the filter to compare groups.")
 
     # Q3
     st.markdown(sec("Q3 · Remote Work: Does Flexibility Retain People?"), unsafe_allow_html=True)
@@ -438,22 +448,30 @@ with tab1:
                  title="Attrition Rate: Remote vs On-Site",
                  labels={"remote_work": "Work Mode", "rate": "Attrition Rate (%)"},
                  color_discrete_map={"Yes": "#10b981", "No": LEFT})
-    fig.add_hline(y=company_avg, line_dash="dash", annotation_text="Company Avg")
+    fig.add_hline(y=rate, line_dash="dash", line_color="#6366f1",
+              annotation_text=f"<b>Filtered Avg ({rate:.1f}%)</b>",
+              annotation_font_color="#6366f1", annotation_font_size=11,
+              annotation_bgcolor="rgba(255,255,255,0.75)")
     fig.update_layout(showlegend=False, yaxis_range=[0, smart_ymax(remote_stats["rate"])])
     st.plotly_chart(qlayout(fig), use_container_width=True)
 
-    remote_yes = remote_stats[remote_stats["remote_work"] == "Yes"]["rate"].values[0]
-    remote_no  = remote_stats[remote_stats["remote_work"] == "No"]["rate"].values[0]
+    _ry = remote_stats[remote_stats["remote_work"] == "Yes"]
+    _rn = remote_stats[remote_stats["remote_work"] == "No"]
+    remote_yes = float(_ry["rate"].values[0]) if len(_ry) else None
+    remote_no  = float(_rn["rate"].values[0]) if len(_rn) else None
     remote_pop = (df_all["remote_work"] == "Yes").mean() * 100
-    st.markdown(
-        insight("🏠","Q3 Answer",
-                f"Remote workers have significantly lower attrition ({remote_yes:.1f}%) vs on-site ({remote_no:.1f}%). "
-                f"However, only **{remote_pop:.1f}% of staff** currently work remotely — "
-                "so we can't yet conclude this scales company-wide. "
-                "Recommendation: pilot expanded remote/hybrid options for the 2 highest-attrition roles first, "
-                "then measure before rolling out broadly."),
-        unsafe_allow_html=True,
-    )
+    if remote_yes is not None and remote_no is not None:
+        st.markdown(
+            insight("💡","INSIGHTS",
+                    f"Remote workers have significantly lower attrition ({remote_yes:.1f}%) vs on-site ({remote_no:.1f}%). "
+                    f"However, only <b>{remote_pop:.1f}% of staff</b> currently work remotely — "
+                    "so we can't yet conclude this scales company-wide. "
+                    "Recommendation: pilot expanded remote/hybrid options for the 2 highest-attrition roles first, "
+                    "then measure before rolling out broadly."),
+            unsafe_allow_html=True,
+        )
+    else:
+        st.info("⚠️ Enable both Remote Work options in the filter to compare groups.")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -468,17 +486,19 @@ with tab2:
     fig = px.line(pay_stats, x="pay_band", y="rate", color="job_level", markers=True,
                   title="Attrition Rate by Pay Band Within Job Levels",
                   labels={"pay_band": "Pay Band", "rate": "Attrition Rate (%)", "job_level": "Job Level"})
-    fig.add_hline(y=company_avg, line_dash="dash",
-                  annotation_text=f"Company Avg ({company_avg:.1f}%)")
+    fig.add_hline(y=rate, line_dash="dash",
+                  annotation_text=f"<b>Filtered Avg ({rate:.1f}%)</b>",
+              annotation_font_color="#9333ea", annotation_font_size=11,
+              annotation_bgcolor="rgba(255,255,255,0.75)", line_color="#9333ea")
     fig.update_layout(yaxis_range=[0, smart_ymax(pay_stats["rate"])])
     st.plotly_chart(qlayout(fig), use_container_width=True)
 
     st.markdown(
-        insight("💵","Q4 Answer",
+        insight("💡","INSIGHTS",
                 "Lower-paid employees within the same job level consistently leave at higher rates. "
-                "The retention benefit of pay increases flattens after the **'Upper-Mid' band** — "
+                "The retention benefit of pay increases flattens after the <b>'Upper-Mid' band</b> — "
                 "meaning paying above that threshold yields diminishing returns on retention. "
-                "HR should focus salary adjustments on the **'Lowest 25%' band first**, "
+                "HR should focus salary adjustments on the <b>'Lowest 25%' band first</b>, "
                 "particularly in high-attrition roles, rather than blanket raises across all levels."),
         unsafe_allow_html=True,
     )
@@ -491,16 +511,18 @@ with tab2:
                  title="Attrition Rate by Tenure Stage",
                  labels={"tenure_stage": "Tenure Stage", "rate": "Attrition Rate (%)"},
                  color_discrete_sequence=["#f97316"])
-    fig.add_hline(y=company_avg, line_dash="dash",
-                  annotation_text=f"Company Avg ({company_avg:.1f}%)")
+    fig.add_hline(y=rate, line_dash="dash",
+                  annotation_text=f"<b>Filtered Avg ({rate:.1f}%)</b>",
+              annotation_font_color="#9333ea", annotation_font_size=11,
+              annotation_bgcolor="rgba(255,255,255,0.75)", line_color="#9333ea")
     fig.update_layout(yaxis_range=[0, smart_ymax(tenure_stats["rate"])])
     st.plotly_chart(qlayout(fig), use_container_width=True)
 
     peak_stage = tenure_stats.loc[tenure_stats["rate"].idxmax(), "tenure_stage"]
     peak_rate  = tenure_stats["rate"].max()
     st.markdown(
-        insight("📅","Q5 Answer",
-                f"Attrition peaks in the **{peak_stage}** stage at **{peak_rate:.1f}%**. "
+        insight("💡","INSIGHTS",
+                f"Attrition peaks in the <b>{peak_stage}</b> stage at <b>{peak_rate:.1f}%</b>. "
                 "Employees who make it past 5 years show dramatically lower exit rates. "
                 "The first 2 years are the critical retention window. "
                 "HR should invest in structured 30/60/90-day onboarding check-ins, "
@@ -526,8 +548,8 @@ with tab3:
     st.plotly_chart(qlayout(fig, h=400), use_container_width=True)
 
     st.markdown(
-        insight("🚨","Q6 Answer",
-                "**Low satisfaction + Poor work-life balance** is the strongest early-warning combination — "
+        insight("💡","INSIGHTS",
+                "<b>Low satisfaction + Poor work-life balance</b> is the strongest early-warning combination — "
                 "producing the highest attrition in the dataset. "
                 "Managers should treat any direct report scoring 'Low' on satisfaction surveys "
                 "as a flight-risk trigger and schedule a stay interview within 2 weeks."),
@@ -543,7 +565,10 @@ with tab3:
         fig = px.bar(life_stats, x="age_group", y="rate", color="marital_status", barmode="group",
                      title="Attrition by Age Group & Marital Status",
                      labels={"age_group": "Age Group", "rate": "Attrition Rate (%)", "marital_status": "Marital Status"})
-        fig.add_hline(y=company_avg, line_dash="dash", annotation_text=f"Avg ({company_avg:.1f}%)")
+        fig.add_hline(y=rate, line_dash="dash", line_color="#6366f1",
+              annotation_text=f"<b>Filtered Avg ({rate:.1f}%)</b>",
+              annotation_font_color="#6366f1", annotation_font_size=11,
+              annotation_bgcolor="rgba(255,255,255,0.75)")
         fig.update_layout(yaxis_range=[0, smart_ymax(life_stats["rate"])])
         st.plotly_chart(qlayout(fig), use_container_width=True)
     with col_b:
@@ -551,16 +576,19 @@ with tab3:
         fig = px.bar(dep_stats, x="age_group", y="rate", color="dependents_group", barmode="group",
                      title="Attrition by Age Group & Number of Dependents",
                      labels={"age_group": "Age Group", "rate": "Attrition Rate (%)", "dependents_group": "Dependents"})
-        fig.add_hline(y=company_avg, line_dash="dash", annotation_text=f"Avg ({company_avg:.1f}%)")
+        fig.add_hline(y=rate, line_dash="dash", line_color="#6366f1",
+              annotation_text=f"<b>Filtered Avg ({rate:.1f}%)</b>",
+              annotation_font_color="#6366f1", annotation_font_size=11,
+              annotation_bgcolor="rgba(255,255,255,0.75)")
         fig.update_layout(yaxis_range=[0, smart_ymax(dep_stats["rate"])])
         st.plotly_chart(qlayout(fig), use_container_width=True)
 
     full_life = group_attrition(["age_group", "marital_status", "dependents_group"])
     top_life  = full_life.sort_values("rate", ascending=False).iloc[0]
     st.markdown(
-        insight("👨‍👩‍👧","Q7 Answer",
-                f"**Young (18–30), Single employees with no dependents** are the highest-risk life stage — "
-                f"the riskiest combination shows **{top_life['rate']:.1f}% attrition** ({int(top_life['total']):,} employees). "
+        insight("💡","INSIGHTS",
+                f"<b>Young (18–30), Single employees with no dependents</b> are the highest-risk life stage — "
+                f"the riskiest combination shows <b>{top_life['rate']:.1f}% attrition</b> ({int(top_life['total']):,} employees). "
                 "They have the fewest financial and social anchors keeping them at the company. "
                 "To retain them: offer mentorship programs, visible career paths, skill development budgets, "
                 "and early-tenure recognition — not just salary."),
@@ -577,7 +605,10 @@ with tab3:
                      title="Attrition: Stuck vs Growth Access",
                      labels={"stuck_profile": "Growth Profile", "rate": "Attrition Rate (%)"},
                      color_discrete_map={"Stuck (No Growth)": LEFT, "Growth Access": "#10b981"})
-        fig.add_hline(y=company_avg, line_dash="dash", annotation_text=f"Avg ({company_avg:.1f}%)")
+        fig.add_hline(y=rate, line_dash="dash", line_color="#6366f1",
+              annotation_text=f"<b>Filtered Avg ({rate:.1f}%)</b>",
+              annotation_font_color="#6366f1", annotation_font_size=11,
+              annotation_bgcolor="rgba(255,255,255,0.75)")
         fig.update_layout(showlegend=False, yaxis_range=[0, smart_ymax(stuck_stats["rate"])])
         st.plotly_chart(qlayout(fig), use_container_width=True)
     with col_b:
@@ -587,21 +618,27 @@ with tab3:
                      title="Attrition Rate by Number of Promotions",
                      labels={"number_of_promotions": "Number of Promotions", "rate": "Attrition Rate (%)"},
                      color_discrete_sequence=["#6366f1"])
-        fig.add_hline(y=company_avg, line_dash="dash", annotation_text=f"Avg ({company_avg:.1f}%)")
+        fig.add_hline(y=rate, line_dash="dash", line_color="#6366f1",
+              annotation_text=f"<b>Filtered Avg ({rate:.1f}%)</b>",
+              annotation_font_color="#6366f1", annotation_font_size=11,
+              annotation_bgcolor="rgba(255,255,255,0.75)")
         fig.update_layout(yaxis_range=[0, smart_ymax(promo_stats["rate"])])
         st.plotly_chart(qlayout(fig), use_container_width=True)
 
-    stuck_rate  = stuck_stats[stuck_stats["stuck_profile"] == "Stuck (No Growth)"]["rate"].values[0]
-    growth_rate = stuck_stats[stuck_stats["stuck_profile"] == "Growth Access"]["rate"].values[0]
-    st.markdown(
-        insight("📈","Q8 Answer",
-                f"Employees with **no growth signals** (zero promotions + no leadership/innovation opportunities) "
-                f"leave at **{stuck_rate:.1f}%** vs {growth_rate:.1f}% for those with growth access. "
-                "Zero promotions is the single strongest career-stagnation signal. "
-                "HR should launch an **internal mobility program** — lateral moves, stretch projects, "
-                "and innovation task forces — to provide growth even when vertical promotions aren't available."),
-        unsafe_allow_html=True,
-    )
+    _sk = stuck_stats[stuck_stats["stuck_profile"] == "Stuck (No Growth)"]
+    _gr = stuck_stats[stuck_stats["stuck_profile"] == "Growth Access"]
+    stuck_rate  = float(_sk["rate"].values[0]) if len(_sk) else None
+    growth_rate = float(_gr["rate"].values[0]) if len(_gr) else None
+    if stuck_rate is not None and growth_rate is not None:
+        st.markdown(
+            insight("💡","INSIGHTS",
+                    f"Employees with <b>no growth signals</b> (zero promotions + no leadership/innovation opportunities) "
+                    f"leave at <b>{stuck_rate:.1f}%</b> vs {growth_rate:.1f}% for those with growth access. "
+                    "Zero promotions is the single strongest career-stagnation signal. "
+                    "HR should launch an <b>internal mobility program</b> — lateral moves, stretch projects, "
+                    "and innovation task forces — to provide growth even when vertical promotions aren't available."),
+            unsafe_allow_html=True,
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -615,7 +652,7 @@ with tab4:
     risk_cols = ["overtime", "job_satisfaction", "work_life_balance"]
     profiles  = group_attrition(risk_cols)
     top_risk  = profiles.sort_values("rate", ascending=False).iloc[0]
-    lift      = top_risk["rate"] - company_avg
+    lift      = top_risk["rate"] - rate
 
     # Chart: top 10 profiles
     top10 = profiles.sort_values("rate", ascending=False).head(10).copy()
@@ -628,14 +665,16 @@ with tab4:
                  title="Top 10 Highest-Risk Employee Profiles (Attrition Rate %)",
                  labels={"rate": "Attrition Rate (%)", "Profile": "Profile"},
                  color="rate", color_continuous_scale="Reds")
-    fig.add_vline(x=company_avg, line_dash="dash",
-                  annotation_text=f"Company Avg ({company_avg:.1f}%)")
+    fig.add_vline(x=rate, line_dash="dash",
+                  annotation_text=f"<b>Filtered Avg ({rate:.1f}%)</b>",
+              annotation_font_color="#9333ea", annotation_font_size=11,
+              annotation_bgcolor="rgba(255,255,255,0.75)", line_color="#9333ea")
     fig.update_layout(yaxis={"categoryorder": "total ascending"}, coloraxis_showscale=False)
     st.plotly_chart(qlayout(fig, h=420), use_container_width=True)
 
     st.markdown(f"""
     <div class='insight'>
-    <div class='itag'>🎯 Q9 Answer</div><br>
+    <div class='itag'>💡 INSIGHTS</div><br>
     <b>Highest-risk profile:</b> Overtime = {top_risk['overtime']} &nbsp;|&nbsp;
     Job Satisfaction = {top_risk['job_satisfaction']} &nbsp;|&nbsp;
     Work-Life Balance = {top_risk['work_life_balance']}<br><br>
@@ -663,7 +702,7 @@ with tab4:
         row   = stats[stats[col] == val]
         r     = row["rate"].values[0] if len(row) else 0
         n     = row["total"].values[0] if len(row) else 0
-        driver_results.append({"Driver": name, "Rate": r, "Lift": r - company_avg, "Count": int(n)})
+        driver_results.append({"Driver": name, "Rate": r, "Lift": r - rate, "Count": int(n)})
 
     driver_df  = pd.DataFrame(driver_results).sort_values("Lift", ascending=False)
     top3       = driver_df.head(3)
@@ -677,9 +716,9 @@ with tab4:
 
     best = top3.iloc[0]
     st.markdown(
-        insight("🏆","Q10 Answer",
-                f"**{best['Driver']}** is the #1 needle-mover with a lift of **{best['Lift']:.1f} percentage points** "
-                f"above the baseline, affecting **{best['Count']:,} employees**. "
+        insight("💡","INSIGHTS",
+                f"<b>{best['Driver']}</b> is the #1 needle-mover with a lift of <b>{best['Lift']:.1f} percentage points</b> "
+                f"above the baseline, affecting <b>{best['Count']:,} employees</b>. "
                 f"Next quarter, a focused initiative on {best['Driver']} has the highest potential ROI. "
                 "Fixing overtime alone — by capping it across 2–3 high-risk departments — "
                 "could move the overall attrition rate by several points within 6 months."),
@@ -698,7 +737,7 @@ with tab5:
     <div class='insight'>
     <div class='itag'>🚨 Pillar 1 — Burnout Prevention</div><br>
     Overtime and Poor Work-Life Balance are the strongest predictors of exit.
-    Employees working overtime leave at <b>{ot_yes:.1f}%</b> vs {ot_no:.1f}% for non-overtime.
+    Employees working overtime leave at <b>{(ot_yes or 0):.1f}%</b> vs {(ot_no or 0):.1f}% for non-overtime.
     <b>Immediate action:</b> audit overtime hours and cap mandatory overtime in high-risk departments.
     </div>
     """, unsafe_allow_html=True)
@@ -752,7 +791,7 @@ with tab6:
             Driven by: Q2 · Q9 · Q10 &nbsp;|&nbsp; Timeline: Immediate
         </div>
         <div class='action-body'>
-            Overtime workers leave at <b>{ot_yes:.1f}%</b> vs {ot_no:.1f}% — the largest single gap in the dataset.
+            Overtime workers leave at <b>{(ot_yes or 0):.1f}%</b> vs {(ot_no or 0):.1f}% — the largest single gap in the dataset.
             Identify the top 2–3 job roles with highest overtime rates.
             Issue a manager directive: no mandatory overtime beyond X hours/week without director approval.
             Cost: zero. A policy memo and a manager briefing is all it takes.
@@ -782,7 +821,7 @@ with tab6:
             Driven by: Q8 &nbsp;|&nbsp; Timeline: This quarter
         </div>
         <div class='action-body'>
-            Employees with no growth signals leave at <b>{stuck_rate:.1f}%</b>.
+            Employees with no growth signals leave at <b>{(stuck_rate or 0):.1f}%</b>.
             You don't need to promote everyone — you need to make people feel like they're going somewhere.
             Create cross-functional task forces, assign "innovation owner" roles on existing projects,
             and let employees lead internal workshops.
@@ -830,7 +869,7 @@ with tab6:
             Driven by: Q3 &nbsp;|&nbsp; Timeline: Next quarter &nbsp;|&nbsp; Est. cost: Minor IT/tooling adjustments
         </div>
         <div class='action-body'>
-            Remote workers leave at <b>{remote_yes:.1f}%</b> vs {remote_no:.1f}% on-site.
+            Remote workers leave at <b>{(remote_yes or 0):.1f}%</b> vs {(remote_no or 0):.1f}% on-site.
             Don't roll this out company-wide without data — pilot it in the 2 roles with highest attrition rates first.
             Measure attrition at 3 and 6 months. If it drops, expand. If not, adjust the policy.
             This costs IT setup time, not headcount.
@@ -867,7 +906,7 @@ with tab6:
             The retention benefit of pay flattens after the Upper-Mid band —
             so you don't need to raise everyone, just lift the bottom quartile.
             Start with a market benchmarking exercise (free via LinkedIn Salary or Glassdoor).
-            Then budget targeted adjustments for the Lowest 25% in roles with attrition above {company_avg:.0f}%.
+            Then budget targeted adjustments for the Lowest 25% in roles with attrition above {rate:.0f}%.
             <br><b>Key principle:</b> fix the floor, not the ceiling. That's where the exits are happening.
         </div>
     </div>
