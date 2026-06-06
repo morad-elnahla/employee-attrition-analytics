@@ -205,6 +205,14 @@ def load_data():
                                 labels=['New (0-2y)', 'Established (3-5y)', 'Experienced (6-10y)', 'Veteran (10y+)'])
     df['age_group'] = pd.cut(df['age'], bins=[17, 30, 45, 100],
                              labels=['Young (18-30)', 'Middle (31-45)', 'Senior (45+)'])
+    # ── Edge case removal (noisy synthetic records) ───────────────────────────
+    edge_mask = (
+        ((df['age'] < 25) & (df['education_level'].isin(["Master's Degree", "PhD"]))) |
+        ((df['job_level'] == 'Entry') & (df['monthly_income'] > df['monthly_income'].quantile(0.95))) |
+        ((df['years_at_company'] <= 1) & (df['number_of_promotions'] > 2))
+    )
+    df = df[~edge_mask].copy()
+
     df['dependents_group'] = df['number_of_dependents'].apply(
         lambda x: 'No Dependents' if x == 0 else ('1–2 Dependents' if x <= 2 else '3+ Dependents')
     )
